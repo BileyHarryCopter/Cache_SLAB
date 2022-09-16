@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cassert>
 #include <map>
 #include <list>
 #include <vector>
 #include <iterator>
 #include <unordered_map>
+#include <iostream>
 
 namespace chc
 {
@@ -12,8 +14,8 @@ namespace chc
 template <typename page_t, typename key_t = int> class lfuda_t 
 {
     size_t capacity;        //  capacity of cache
-    size_t size;            //  number of elements in cache
-    size_t age;             //  characteristic for realisation of LFUDA
+    size_t size = 0;        //  number of elements in cache
+    size_t age = 0;         //  characteristic for realisation of LFUDA
 
     //  wlist_t --- list of node with weight
     //  wlnode_t --- weight node contains pointer to appropriate local list 
@@ -30,61 +32,127 @@ template <typename page_t, typename key_t = int> class lfuda_t
         wlnode_it parent;
     };
 
+    using llnode_it = typename std::list<llnode_t>::iterator;
+
     struct wlnode_t
     {
-        int weight;
-        std::list <llnode_t> local_list;           //  nodes of local list with page
+        size_t weight;
+        std::list<llnode_t> local_list;                              //  nodes of local list with page
     };
 
-    std::list<wlnode_t> wllist;                   //  nodes of weight list with local list as node  
-    std::unordered_map<key_t, page_t> hashmap;    // unordered_map
+    std::list<wlnode_t> wllist;                                      //   nodes of weight list with local list as node  
+    std::unordered_map<key_t, llnode_it> hashmap;                       //   unordered_map
+    std::map<key_t, wlnode_it> RBtree;             //   rbtree
 
-    using hashmap_it = typename std::unordered_map<page_t, key_t>::iterator;
+    //  do I really nead iterator to hashmap and rbtree???
+    //  using hashmap_it = typename std::unordered_map<page_t, key_t>::iterator;
 
 public:
-    lfuda_t (size_t capacity_) : capacity (capacity_);
+    lfuda_t (size_t capacity_) : capacity{capacity_} {};
 
-    bool is_full () const { return capacity == size;}
+    bool is_full () const { return capacity == size; }
 
-    template <typename func> bool lookup_update (const key_t key, func slow_get_page)
+    template <typename func> bool lookup_update (const key_t& key, func slow_get_page)
     {
-        int hit = hashmap.find (key);
-
-        if (hit == hashmap.end())
+        auto hit_it = hashmap.find(key);
+        if (hit_it == hashmap.end())
         {
-            cache_update (key, slow_get_page);  //  just moving to a new state of cache
-                                                //  why void?
+            //  insert new element to cache
+            push_cache (key, slow_get_page);
             return false;
         }
         else 
         {
-            //  any working with cache_element after hit to it
+            //  any work with cache_element after hit to it
+            cache_update (key);
             return true;
         };
     }
 
-private:
-    template <typename func> void cache_update (const key_t key, const func slow_get_page) 
+    void cache_dump (const key_t& key) const
     {
-        auto low_wlist = wllist.begin();                        //  returns iterator of wlnode on begin of wllist
+        std::cout << "Next key: " << key << '\n';
+        std::cout << "Age of cache: " << age << '\n';
 
-        if (is_full ())
+        auto wlnode_i = wllist.begin();
+        while (wlnode_i != wllist.end())
         {
-            auto evict_node = low_wlist->local_list.begin();    //  get iterator to node with the lowest weight
-            low_wlist->local_list.erase (evict_node);           //  delete node in local_list
-            hashmap.erase (evict_node->key);                    //  delete element in hashmap by its key
-            size--;
-        }
-        
-        //  get new page and insert it by its Wi = 1 + Age
-        //  for this we need use rb tree
-        if (low_list->local_list.empty())
-            wllist.erase (low_list);
+            std::cout << "WEIGHT: " << wlnode_i->weight << '\n';
+            std::cout << '\t';
 
-        //  insert for rbtree
+            auto llnode_i = wlnode_i->local_list.begin();
+            while (llnode_i != wlnode_i->local_list.end())
+            {
+                std::cout << llnode_i->key << " -> ";
+                llnode_i = std::next(llnode_i);
+            }
+            std::cout << "NULL\n";
+
+            wlnode_i = std::next(wlnode_i);
+        }
+        std::cout << "\n\n\n";
     }
 
-    
+private:
+    template <typename func> void push_cache (const key_t& key, const func slow_get_page) 
+    {
+        if (is_full())      //  this full about size of cache - not about size of hashmap
+        {
+            auto evict_node = std::prev(wllist.begin()->local_list.end());      //  access to iterator to last node in the local list
+            hashmap.erase(evict_node->key);
+            age = wllist.begin()->weight;
+            wllist.begin()->local_list.erase(evict_node);
+
+            if (wllist.begin()->local_list.empty())
+                wllist.pop_front ();
+
+            size--;
+        }
+
+        auto need_wlnode = find_need_wlnode (age + 1);
+        need_wlnode->local_list.push_front({key, slow_get_page(key), need_wlnode});
+        hashmap[key] = need_wlnode->local_list.begin();
+        size++;
+    }
+
+    void cache_update (const key_t& key)
+    {
+        //  increase weight found llnode and moving it into cache
+        auto need_llnode = hashmap.find(key)->second;
+
+        auto need_wlnode = find_need_wlnode (need_llnode->parent->weight + age + 1);
+        need_wlnode->local_list.push_front({key, need_llnode->page, need_llnode->parent});
+
+        hashmap[key] = need_wlnode->local_list.begin();
+        need_llnode->parent->local_list.erase(need_llnode);
+    }
+
+    wlnode_it find_need_wlnode (const int weight)
+    {
+        auto is_need_wlnode = RBtree.find(weight);
+        if (is_need_wlnode == RBtree.end())
+        {
+            //  create new wlnode with nececcery weight and add new element into rbtree
+            wlnode_it need_wlnode;
+            auto more_need_wlnode = RBtree.upper_bound(weight);
+
+            if (more_need_wlnode == RBtree.end())
+            {
+                wllist.push_back({weight, {}});
+                need_wlnode = std::prev(wllist.end());
+            }
+            else
+            {
+                more_need_wlnode = std::prev(more_need_wlnode);
+                need_wlnode = more_need_wlnode->second;
+            }
+            
+            RBtree.insert({weight, need_wlnode});
+
+            return need_wlnode;
+        }
+        return is_need_wlnode->second;
+    }
 };
 
 }   // namespace chc
