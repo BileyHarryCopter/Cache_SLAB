@@ -1,0 +1,25 @@
+AGE: 0
+	|KEY: 1; WEIGHT: 1| -> NULL
+
+
+AGE: 0
+	|KEY: 2; WEIGHT: 1| -> |KEY: 1; WEIGHT: 1| -> NULL
+
+
+AGE: 0
+	|KEY: 2; WEIGHT: 1| -> |KEY: 1; WEIGHT: 2| -> NULL
+
+
+AGE: 0
+	|KEY: 2; WEIGHT: 2| -> |KEY: 1; WEIGHT: 2| -> NULL
+
+
+AGE: 0
+	|KEY: 2; WEIGHT: 2| -> |KEY: 1; WEIGHT: 3| -> NULL
+
+
+AGE: 0
+	|KEY: 2; WEIGHT: 3| -> |KEY: 1; WEIGHT: 3| -> NULL
+
+
+4
