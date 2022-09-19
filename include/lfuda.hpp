@@ -9,9 +9,6 @@
 
 namespace chc
 {
-    //  cache_t class: cache_cap, hashmap, list
-enum {MAX_AGE = 100000};
-
 template <typename page_t, typename key_t = int> class lfuda_t 
 {
     std::size_t capacity;        //  capacity of cache
@@ -42,11 +39,8 @@ template <typename page_t, typename key_t = int> class lfuda_t
     };
 
     std::list<wlnode_t> wllist;                                      //   nodes of weight list with local list as node  
-    std::unordered_map<key_t, llnode_it> hashmap;                       //   unordered_map
-    std::map<std::size_t, wlnode_it> RBtree;             //   rbtree
-
-    //  do I really nead iterator to hashmap and rbtree???
-    //  using hashmap_it = typename std::unordered_map<page_t, key_t>::iterator;
+    std::unordered_map<key_t, llnode_it> hashmap;                    //   unordered_map
+    std::map<std::size_t, wlnode_it> RBtree;                         //   rbtree
 
 public:
     lfuda_t (std::size_t capacity_) : capacity{capacity_} {};
@@ -102,9 +96,9 @@ private:
     }
     template <typename func> void push_cache (const key_t& key, const func slow_get_page) 
     {
-        if (is_full())      //  this full about size of cache - not about size of hashmap
+        if (is_full())
         {
-            auto evict_node = std::prev(wllist.begin()->local_list.end());      //  access to iterator to the last node in the local list
+            auto evict_node = std::prev(wllist.begin()->local_list.end());
             hashmap.erase(evict_node->key);  
 
             age = wllist.begin()->weight;
@@ -115,9 +109,6 @@ private:
                 RBtree.erase (wllist.begin()->weight);
                 wllist.pop_front ();
             }
-
-            //  What about arese in the RBtree, you're monster?!?!??!
-
             size--;
         }
 
@@ -137,14 +128,12 @@ private:
         need_wlnode->local_list.push_front({key, need_llnode->page, need_wlnode});
         hashmap[key] = need_wlnode->local_list.begin();
 
-        //  changing a state of RBtree 
-        RBtree.erase (old_wlnode->weight);
-        RBtree [old_wlnode->weight + age + 1] = need_wlnode;
-
         old_wlnode->local_list.erase(need_llnode);
         if (old_wlnode->local_list.empty())
+        {
+            RBtree.erase (old_wlnode->weight);
             wllist.erase(old_wlnode);
-
+        }
     }
 
     wlnode_it find_need_wlnode (const std::size_t weight)

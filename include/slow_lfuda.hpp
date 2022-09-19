@@ -99,7 +99,7 @@ private:
                 return nodelist.end();
             prepush = std::next(prepush);
         }
-        if (prepush->weight == weight)
+        if (prepush->weight >= weight)
             return prepush;
         return nodelist.end();
     }
