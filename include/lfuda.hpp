@@ -89,11 +89,6 @@ public:
     }
 
 private:
-    void is_age_reset () 
-    {
-        if (age > MAX_AGE)
-            age = 0;
-    }
     template <typename func> void push_cache (const key_t& key, const func slow_get_page) 
     {
         if (is_full())

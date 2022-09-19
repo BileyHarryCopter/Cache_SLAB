@@ -1,4 +1,2 @@
-1. Think about ending input of cache with hit in end-of-file
-2. Read about throw and exceptions
-3. Write a dump
-4. Fix problem with researching needing wlnode with rbtree
+1. Create testgenerator
+2. Launch code with cmake
