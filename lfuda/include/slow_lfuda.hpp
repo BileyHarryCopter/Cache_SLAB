@@ -27,7 +27,7 @@ public:
     slow_lfuda_t (std::size_t capacity_) : capacity {capacity_} {};
     bool is_full () { return size == capacity; }
 
-    template<typename func_t> bool lookup_update (key_t key, func_t slow_get_page)
+    template<typename func_t> bool lookup_update (const key_t key, func_t slow_get_page)
     {
         auto is_hit = find_bykey (key);
         if (is_hit == nodelist.end())
@@ -58,7 +58,7 @@ public:
         std::cout << "NULL\n\n\n";
     }
 private:
-    node_it find_bykey (key_t key)
+    node_it find_bykey (const key_t key)
     {
         auto need_node = nodelist.begin();
         while (need_node != nodelist.end() && need_node->key != key)
@@ -104,7 +104,7 @@ private:
         return nodelist.end();
     }
 
-    template<typename func_t> void push_cache (key_t key, func_t slow_get_page)
+    template<typename func_t> void push_cache (const key_t key, func_t slow_get_page)
     {   
         if (is_full())
             evict_is_full (nodelist.begin()->weight);
@@ -117,7 +117,7 @@ private:
         size++;
     }
 
-    void cache_update (key_t key, node_it promote_node)
+    void cache_update (const key_t key, node_it promote_node)
     {
         auto prepush = find_prepush (promote_node->weight + age + 1);
         if (prepush == nodelist.end())

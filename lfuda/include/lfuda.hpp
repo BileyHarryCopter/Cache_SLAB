@@ -2,7 +2,6 @@
 
 #include <map>
 #include <list>
-#include <vector>
 #include <iterator>
 #include <unordered_map>
 #include <iostream>
@@ -47,7 +46,7 @@ public:
 
     bool is_full () const { return capacity == size; }
 
-    template <typename func> bool lookup_update (const key_t& key, func slow_get_page)
+    template <typename func_t> bool lookup_update (const key_t key, func_t slow_get_page)
     {
         auto hit_it = hashmap.find(key);
         if (hit_it == hashmap.end())
@@ -64,7 +63,7 @@ public:
         };
     }
 
-    void cache_dump (const key_t& key) const
+    void cache_dump (const key_t key) const
     {
         std::cout << "Next key: " << key << '\n';
         std::cout << "Age of cache: " << age << '\n';
@@ -89,7 +88,7 @@ public:
     }
 
 private:
-    template <typename func> void push_cache (const key_t& key, const func slow_get_page) 
+    template <typename func_t> void push_cache (const key_t key, const func_t slow_get_page) 
     {
         if (is_full())
         {
@@ -113,7 +112,7 @@ private:
         size++;
     }
 
-    void cache_update (const key_t& key)
+    void cache_update (const key_t key)
     {
         //  increase weight found llnode and move it into cache
         auto need_llnode = hashmap.find(key)->second;
