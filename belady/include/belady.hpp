@@ -3,7 +3,6 @@
 #include <map>
 #include <list>
 #include <vector>
-#include <iterator>
 #include <unordered_map>
 #include <iostream>
 
@@ -13,24 +12,18 @@ template<typename page_t, typename key_t = int> class belady_t
 {
     std::size_t capacity;
     std::size_t size = 0;
-
     //  structure of node in the red-black tree
     struct rbnode_t
     {
         key_t key;
         page_t page;
     };
-    using rbnode_it = typename std::list<rbnode_t>::iterator;
-
-    using hshlist_t = typename std::list<std::size_t>;
-
-    std::unordered_map<key_t, hshlist_t> hashmap;
+    std::unordered_map<key_t, std::list<std::size_t>> hashmap;
     std::map<std::size_t, rbnode_t> rbtree;
 
 public:
-    belady_t (std::size_t capacity_, std::vector<key_t> & input_reqs) 
+    belady_t (std::size_t capacity_, std::vector<key_t> & input_reqs) : capacity {capacity_} 
     {
-        capacity = capacity_;
         //  creating a hashmap from input
         std::size_t position = 0;
         for (auto ireq : input_reqs)
@@ -55,42 +48,49 @@ public:
             return true;
         }
     }
+
+    void cache_dump (key_t ireq, size_t position)
+    {
+        std::cout << "KEY: " << ireq << " POS: " << position << '\n';
+        auto list_i = hashmap.find(ireq)->second;
+        std::cout << "HSHLIST OF KEY:\n\t";
+        for (auto pos_i = list_i.begin(); pos_i != list_i.end(); pos_i = std::next(pos_i))
+        {
+            std::cout << *pos_i << " -> ";
+        }
+        std::cout << "NULL\n";
+
+        std::cout << "TREE STAGE: \n\t";
+        for (auto node_i : rbtree)
+        {
+            std::cout << node_i.second.key << '(' << node_i.first << ')' << " -> ";
+        }
+        std::cout << "NULL\n\n\n\n";
+    }
+
 private:
-    void memory_insert(key_t ireq, std::size_t position) {
+    void memory_insert(key_t ireq, std::size_t position) 
+    {
         auto hash_it = hashmap.find(ireq);
 
         if (hash_it == hashmap.end())
-        {
-            hshlist_t list_i {position}; //  create new list with the first element of near fp current key
-            hashmap[ireq] = list_i;
-            list_i.pop_front();  //  initially delete the first future position in cache line
-        }
+            hashmap[ireq] = {};
         else 
-        {
             hash_it->second.push_back(position);
-        }
     }
 
     bool cache_find (const key_t key)
     {
         auto list_i = hashmap.find(key)->second;
-        
-        if (list_i.empty()) //  this kind if elements must not be in the cache, because it need to be deleted
-        {
-            hashmap.erase(key);
-            return false;
-        }
-
         auto fp_i = list_i.front();
         if (rbtree.find(fp_i) == rbtree.end())
             return false;
-
         return true;    
     }
 
     template<typename func_t> void push_cache (const key_t key, const func_t slow_get_page)
     {
-        hshlist_t fplist_i = hashmap.find(key)->second;
+        auto& fplist_i = hashmap.find(key)->second;
 
         if (fplist_i.empty())
         {
@@ -98,7 +98,7 @@ private:
             return;
         }
 
-       rbnode_t push_node {key, slow_get_page(key)};
+        rbnode_t push_node {key, slow_get_page(key)};
 
         auto fp_i = fplist_i.front();
         if (rbtree.empty())
@@ -109,14 +109,15 @@ private:
         }
 
         auto farest = std::prev(rbtree.end());
-        if (fp_i >= farest->first)
-        {
-            fplist_i.pop_front();
-            return;
-        }
         if (is_full())
         {
-            rbtree.erase(farest);
+            if (fp_i >= farest->first)
+            {
+                fplist_i.pop_front();
+                return;
+            }
+            hashmap[farest->second.key].pop_front();
+            rbtree.erase(farest->first);
             size--;
         }
 
@@ -126,7 +127,7 @@ private:
 
     void cache_update (const key_t key)
     {
-        auto fplist_i = hashmap.find(key)->second;
+        auto& fplist_i = hashmap.find(key)->second;
         auto fp_i = fplist_i.front();
         auto node_i = rbtree.find(fp_i)->second;
 
@@ -137,6 +138,7 @@ private:
             rbtree.erase(fp_i);
             hashmap.erase(key);
             size--;
+            return;
         }
 
         //  else the element need be replaced in the cache
@@ -144,5 +146,6 @@ private:
         rbtree.insert({nextfp_i, node_i});
         rbtree.erase(fp_i);
     }
+
 };
 }   //  namespace of belady cache

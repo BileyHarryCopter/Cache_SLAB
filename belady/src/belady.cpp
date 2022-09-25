@@ -21,10 +21,13 @@ std::size_t contest_processing (size_t cache_cap, int requests)
     std::size_t hits = 0;
     auto & memory_ref = memory;
     belady_chc::belady_t<int> cache (cache_cap, memory_ref);
+    //  int i = 0;
     for (key_t ireq : memory)
     {
+        //  cache.cache_dump(ireq, i);
         if (cache.lookup_update (ireq, slow_get_page))
             hits++;
+        //  i++;
     }
 
     return hits;
