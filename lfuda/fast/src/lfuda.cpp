@@ -7,7 +7,7 @@ int slow_get_page(int key) { return key; }
 
 std::size_t contest_processing (size_t cache_cap, int requests)
 {
-    chc::lfuda_t<int> cache {cache_cap};
+    lfuda_chc::lfuda_t<int> cache {cache_cap};
 
     int ireq = 0;
     std::size_t hits = 0;

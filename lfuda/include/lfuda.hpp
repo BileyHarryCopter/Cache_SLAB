@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <iostream>
 
-namespace chc
+namespace lfuda_chc
 {
 template <typename page_t, typename key_t = int> class lfuda_t 
 {
