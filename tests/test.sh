@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# Use returned value of a command: value=$(command)
-# Use maths operation:             value=$((expression)) 
-# Comparison numbers: n1 (-eq | -ge | -gt | -le | -lt | -ne) n2
-# Comparison strings: str ( = | != | < | > | -n | -z )
-# Arguments of command line: $N. N - number of argument
-# $# - number of arguments
-# S* - all of arguments in one word
-# S@ - list of words of all arguments
-
 # colors for tracking
 green="\033[1;32m"
 red="\033[1;31m"
