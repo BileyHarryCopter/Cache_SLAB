@@ -46,7 +46,6 @@ else
             Mkdir "${answer_dir}_${cache}"
             Mkdir "${result_dir}_${cache}"
 
-
             # test_genering
             cd ../$cache
 
@@ -91,7 +90,7 @@ else
             case $answer in
             y) echo "Ok, check this out in \"tests/\" ";;
             *) echo "Delete testing derictories... "
-               rm -rf ${tests_src}${tests_dir} 
+               rm -rf ${tests_src}${tests_dir}
                rm -rf ${tests_src}${result_dir}_${cache}
                rm -rf ${tests_src}${answer_dir}_${cache};;
             esac
