@@ -98,12 +98,10 @@ private:
             return;
         }
 
-        rbnode_t push_node {key, slow_get_page(key)};
-
         auto fp_i = fplist_i.front();
         if (rbtree.empty())
         {
-            rbtree.insert({fp_i, push_node});
+            rbtree.insert({fp_i, {key, slow_get_page(key)}});
             size++;
             return;
         }
@@ -121,7 +119,7 @@ private:
             size--;
         }
 
-        rbtree.insert({fp_i, push_node});
+        rbtree.insert({fp_i, {key, slow_get_page(key)}});
         size++;
     }
 

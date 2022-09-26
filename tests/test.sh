@@ -43,8 +43,7 @@ else
     else
         cache=$1
 
-        if [ "$cache" = "lfuda" ]
-        then
+        if [ "$cache" = "lfuda" ] || [ "$cache" = "belady" ]; then
             Mkdir $tests_dir
             echo "Generating tests..."
 
@@ -97,9 +96,15 @@ else
                 fi
             done
 
-        elif [ "$cache" = "belady" ]
-        then 
-            echo "This cache is still in beta version"
+            read -p "Do you wanna check directories for testing? (y / n) " answer
+            case $answer in
+            y) echo "Ok, check this out in \"tests/\" ";;
+            *) echo "Delete testing derictories... "
+               rm -rf ${tests_src}${tests_dir} 
+               rm -rf ${tests_src}${result_dir}_${cache}
+               rm -rf ${tests_src}${answer_dir}_${cache};;
+            esac
+
         else
             echo "There is no cache with such name"
         fi

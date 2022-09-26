@@ -33,7 +33,7 @@ int main (void)
     assert (std::cin.good());
 
     std::size_t hits = contest_processing (init_cap, reqs);
-    std::cout << hits;
+    std::cout << hits << '\n';
 
     return 0;
 }

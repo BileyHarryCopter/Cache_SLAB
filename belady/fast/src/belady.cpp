@@ -1,23 +1,28 @@
-#include <iostream>
+#include <vector>
 #include <cassert>
-
-#include "slow_lfuda.hpp"
+#include <iostream>
+#include "belady.hpp"
 
 // slow get page imitation
 int slow_get_page(int key) { return key; }
 
 std::size_t contest_processing (size_t cache_cap, int requests)
 {
-    slow_lfuda_chc::slow_lfuda_t<int> cache {cache_cap};
-
-    int ireq = 0;
-    std::size_t hits = 0;
-
+    key_t ireq = 0;
+    std::vector<key_t> memory;
+    //  input from std::cin and move it in vector
     for (int i = 0; i < requests; i++)
     {
         std::cin >> ireq;
         assert (std::cin.good());
+        memory.push_back(ireq);
+    }
 
+    std::size_t hits = 0;
+    auto & memory_ref = memory;
+    belady_chc::belady_t<int> cache (cache_cap, memory_ref);
+    for (key_t ireq : memory)
+    {
         if (cache.lookup_update (ireq, slow_get_page))
             hits++;
     }
