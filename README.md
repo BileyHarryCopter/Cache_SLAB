@@ -1,7 +1,5 @@
 # LFUDA and BELADY cache implementations
 
-## README about this project has not completely ready yet
-
 ## For what?
 
 Firstly, it's just interesting. Secondly, this is the first practice task on [C++ based course](https://sourceforge.net/projects/cpp-lects-rus/files/cpp-graduated) by [K.I.Vladimirov](https://github.com/tilir).
