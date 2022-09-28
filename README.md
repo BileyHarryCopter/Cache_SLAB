@@ -25,18 +25,17 @@ That is all about algorithm in general ideas
 1) First of all, clone repo:
    
 ```   
-   git clone https://github.com/BileyHarryCopter/Cache_SLAB.git
-   cd Cache_SLAB
+   git clone https://github.com/BileyHarryCopter/LFUDA_BELADY_CACHE.git
+   cd LFUDA_BELADY_CACHE/
 ```
 
-2) After that you can make all of cache on your own desire:
+2) After that you can make:
 ```
-   cd [cache]/[version]
    cmake -B build
-   cd build
+   cd build/[cache]
    cmake --build .
 ```
-Where [cache] can be **lfuda** or **belady** and [version] can be **slow** and **fast**
+Where [cache] can be **lfuda** or **belady**.
 
 3) Congratulations! Now you have executable file which call [./cache]
    
