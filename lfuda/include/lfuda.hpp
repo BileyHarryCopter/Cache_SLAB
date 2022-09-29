@@ -39,7 +39,7 @@ template <typename page_t, typename key_t = int> class lfuda_t
 
     std::list<wlnode_t> wllist;                                      //   nodes of weight list with local list as node  
     std::unordered_map<key_t, llnode_it> hashmap;                    //   unordered_map
-    std::map<std::size_t, wlnode_it> map;                         //   Map
+    std::map<std::size_t, wlnode_it> map;                            //   Map
 
 public:
     lfuda_t (std::size_t capacity_) : capacity{capacity_} {};

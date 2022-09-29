@@ -1,6 +1,7 @@
 #include <iostream>
 #include "lfuda.hpp"
 #include <cassert>
+#include <chrono>
 
 // slow get page imitation
 int slow_get_page(int key) { return key; }
