@@ -1,3 +1,4 @@
+#include <chrono>
 #include <vector>
 #include <cassert>
 #include <iostream>
@@ -10,6 +11,7 @@ std::size_t contest_processing (size_t cache_cap, int requests)
 {
     key_t ireq = 0;
     std::vector<key_t> memory;
+
     //  input from std::cin and move it in vector
     for (int i = 0; i < requests; i++)
     {
@@ -20,7 +22,9 @@ std::size_t contest_processing (size_t cache_cap, int requests)
 
     std::size_t hits = 0;
     auto & memory_ref = memory;
+
     belady_chc::belady_t<int> cache (cache_cap, memory_ref);
+
     for (key_t ireq : memory)
     {
         if (cache.lookup_update (ireq, slow_get_page))

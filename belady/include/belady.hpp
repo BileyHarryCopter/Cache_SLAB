@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <unordered_map>
+#include <cassert>
 #include <iostream>
 
 namespace belady_chc
@@ -87,7 +88,7 @@ private:
     }
 
     template<typename func_t> void push_cache (const key_t key, const func_t slow_get_page)
-    {
+    {        
         auto& fplist_i = hashmap.find(key)->second;
 
         if (fplist_i.empty())
@@ -95,8 +96,8 @@ private:
             hashmap.erase(key);
             return;
         }
-
-        auto fp_i = fplist_i.front();
+        
+        auto& fp_i = fplist_i.front();
         if (map.empty())
         {
             map.insert({fp_i, {key, slow_get_page(key)}});
@@ -113,7 +114,7 @@ private:
                 return;
             }
             hashmap[farest->second.key].pop_front();
-            map.erase(farest->first);
+            map.erase(farest);
             size--;
         }
 
@@ -125,13 +126,13 @@ private:
     {
         auto& fplist_i = hashmap.find(key)->second;
         auto fp_i = fplist_i.front();
-        auto node_i = map.find(fp_i)->second;
+        auto node_it = map.find(fp_i);
 
         fplist_i.pop_front();
 
         if (fplist_i.empty()) //  element won't be requested in the future
         {
-            map.erase(fp_i);
+            map.erase(node_it);
             hashmap.erase(key);
             size--;
             return;
@@ -139,8 +140,8 @@ private:
 
         //  else the element need be replaced in the cache
         auto nextfp_i = fplist_i.front();
-        map.insert({nextfp_i, node_i});
-        map.erase(fp_i);
+        map.insert({nextfp_i, node_it->second});
+        map.erase(node_it);
     }
 
 };

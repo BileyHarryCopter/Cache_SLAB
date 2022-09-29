@@ -143,7 +143,6 @@ private:
                 need_wlnode = wllist.emplace (more_need_wlnode->second);
                 need_wlnode->weight = weight;
             }
-
             map.insert({weight, need_wlnode});
 
             return need_wlnode;
