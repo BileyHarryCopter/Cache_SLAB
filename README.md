@@ -41,13 +41,13 @@ Where [cache] can be **lfuda** or **belady**.
 
 1) From root directory move to test and write down:
 ```
-   ./test.sh [cache] [N]
+   ./test.sh [cache] [mode]
 ```
-Where [cache] can be **lfuda** or **belady** and [N] - number of tests
+Where [cache] can be **lfuda** or **belady**. [mode] can be two variants: [based] (launch basic test for cache) or any positive integer number [N] (launch test generation of [N] tests)
 
 ## Comparison LFUDA with ideal cache BELADY
 
-It is still not ready, because I want to do it special 
+It is still not ready, because I wanna do it special 
 
 # NOTE
 \* M - capacity of cache 
