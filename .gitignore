@@ -2,3 +2,4 @@ src/start
 src/cache
 .vscode
 *build
+tests/test

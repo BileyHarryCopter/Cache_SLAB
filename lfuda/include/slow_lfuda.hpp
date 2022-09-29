@@ -21,11 +21,10 @@ template<typename page_t, typename key_t = int> class slow_lfuda_t
 
     using node_it = typename std::list<node_t>::iterator;
     std::list<node_t> nodelist;
-
 public:
 
     slow_lfuda_t (std::size_t capacity_) : capacity {capacity_} {};
-    bool is_full () { return size == capacity; }
+    bool is_full () const { return size == capacity; }
 
     template<typename func_t> bool lookup_update (const key_t key, func_t slow_get_page)
     {
@@ -44,32 +43,31 @@ public:
         }
     }
 
-    void cache_dump (void)
+    void cache_dump () const
     {
         if (nodelist.empty())
             return;
         std::cout << "AGE: " << age << "\n\t";
-        auto node_i = nodelist.begin();
-        while (node_i != nodelist.end())
-        {
+        for (auto node_i = nodelist.begin(); node_i != nodelist.end(); node_i = std::next(node_i))
             std::cout << "|KEY: " << node_i->key << "; WEIGHT: " << node_i->weight << "| -> ";
-            node_i = std::next(node_i);
-        }
         std::cout << "NULL\n\n\n";
     }
 private:
     node_it find_bykey (const key_t key)
-    {
-        auto need_node = nodelist.begin();
-        while (need_node != nodelist.end() && need_node->key != key)
-            need_node = std::next(need_node);
-        return need_node;
+    {   
+        for (auto need_node = nodelist.begin(), end_node = nodelist.end(); 
+                  need_node != end_node; need_node = std::next(need_node))
+        {
+            if (need_node->key == key)
+                return need_node;
+        }
+        return nodelist.end();
     }
 
     node_it find_evict_node (std::size_t weight)
     {
         auto evict_node = nodelist.begin();
-        while (evict_node->weight == weight)
+        for (;evict_node->weight == weight;)
         {
             if (std::next(evict_node) == nodelist.end())
                 return evict_node;

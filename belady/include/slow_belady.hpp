@@ -35,7 +35,7 @@ public:
             memory.push_back(x);
     }
 
-    bool is_full () { return size == capacity; };
+    bool is_full () const { return size == capacity; };
 
     template<typename func_t> bool lookup_update (const key_t key, const func_t slow_get_page)
     {
@@ -53,7 +53,7 @@ public:
         }
     }
 
-    void cache_dump (const key_t key)
+    void cache_dump (const key_t key) const
     {
         std::cout << "KEY: " << key << "\n\t";
         for (auto x : cache_list)

@@ -19,7 +19,7 @@ template<typename page_t, typename key_t = int> class belady_t
         page_t page;
     };
     std::unordered_map<key_t, std::list<std::size_t>> hashmap;
-    std::map<std::size_t, rbnode_t> rbtree;
+    std::map<std::size_t, rbnode_t> map;
 
 public:
     belady_t (std::size_t capacity_, std::vector<key_t> & input_reqs) : capacity {capacity_} 
@@ -33,7 +33,7 @@ public:
         }
     }
 
-    bool is_full () { return size == capacity; };
+    bool is_full () const { return size == capacity; };
 
     template<typename func_t> bool lookup_update (const key_t key, const func_t slow_get_page)
     {
@@ -49,7 +49,7 @@ public:
         }
     }
 
-    void cache_dump (key_t ireq, size_t position)
+    void cache_dump (key_t ireq, size_t position) const
     {
         std::cout << "KEY: " << ireq << " POS: " << position << '\n';
         auto list_i = hashmap.find(ireq)->second;
@@ -61,7 +61,7 @@ public:
         std::cout << "NULL\n";
 
         std::cout << "TREE STAGE: \n\t";
-        for (auto node_i : rbtree)
+        for (auto node_i : map)
         {
             std::cout << node_i.second.key << '(' << node_i.first << ')' << " -> ";
         }
@@ -83,9 +83,7 @@ private:
     {
         auto list_i = hashmap.find(key)->second;
         auto fp_i = list_i.front();
-        if (rbtree.find(fp_i) == rbtree.end())
-            return false;
-        return true;    
+        return (map.find(fp_i) == map.end()) ? false : true;
     }
 
     template<typename func_t> void push_cache (const key_t key, const func_t slow_get_page)
@@ -99,14 +97,14 @@ private:
         }
 
         auto fp_i = fplist_i.front();
-        if (rbtree.empty())
+        if (map.empty())
         {
-            rbtree.insert({fp_i, {key, slow_get_page(key)}});
+            map.insert({fp_i, {key, slow_get_page(key)}});
             size++;
             return;
         }
 
-        auto farest = std::prev(rbtree.end());
+        auto farest = std::prev(map.end());
         if (is_full())
         {
             if (fp_i >= farest->first)
@@ -115,11 +113,11 @@ private:
                 return;
             }
             hashmap[farest->second.key].pop_front();
-            rbtree.erase(farest->first);
+            map.erase(farest->first);
             size--;
         }
 
-        rbtree.insert({fp_i, {key, slow_get_page(key)}});
+        map.insert({fp_i, {key, slow_get_page(key)}});
         size++;
     }
 
@@ -127,13 +125,13 @@ private:
     {
         auto& fplist_i = hashmap.find(key)->second;
         auto fp_i = fplist_i.front();
-        auto node_i = rbtree.find(fp_i)->second;
+        auto node_i = map.find(fp_i)->second;
 
         fplist_i.pop_front();
 
         if (fplist_i.empty()) //  element won't be requested in the future
         {
-            rbtree.erase(fp_i);
+            map.erase(fp_i);
             hashmap.erase(key);
             size--;
             return;
@@ -141,8 +139,8 @@ private:
 
         //  else the element need be replaced in the cache
         auto nextfp_i = fplist_i.front();
-        rbtree.insert({nextfp_i, node_i});
-        rbtree.erase(fp_i);
+        map.insert({nextfp_i, node_i});
+        map.erase(fp_i);
     }
 
 };

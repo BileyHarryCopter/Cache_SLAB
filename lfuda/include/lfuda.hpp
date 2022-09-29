@@ -39,7 +39,7 @@ template <typename page_t, typename key_t = int> class lfuda_t
 
     std::list<wlnode_t> wllist;                                      //   nodes of weight list with local list as node  
     std::unordered_map<key_t, llnode_it> hashmap;                    //   unordered_map
-    std::map<std::size_t, wlnode_it> RBtree;                         //   rbtree
+    std::map<std::size_t, wlnode_it> map;                         //   Map
 
 public:
     lfuda_t (std::size_t capacity_) : capacity{capacity_} {};
@@ -68,21 +68,14 @@ public:
         std::cout << "Next key: " << key << '\n';
         std::cout << "Age of cache: " << age << '\n';
 
-        auto wlnode_i = wllist.begin();
-        while (wlnode_i != wllist.end())
+        for (auto wlnode_i = wllist.begin(); wlnode_i != wllist.end(); wlnode_i = std::next(wlnode_i))
         {
             std::cout << "WEIGHT: " << wlnode_i->weight << '\n';
             std::cout << '\t';
 
-            auto llnode_i = wlnode_i->local_list.begin();
-            while (llnode_i != wlnode_i->local_list.end())
-            {
+            for (auto llnode_i = wlnode_i->local_list.begin(); llnode_i != wlnode_i->local_list.end(); llnode_i = std::next(llnode_i))
                 std::cout << llnode_i->key << " -> ";
-                llnode_i = std::next(llnode_i);
-            }
             std::cout << "NULL\n";
-
-            wlnode_i = std::next(wlnode_i);
         }
         std::cout << "\n\n\n";
     }
@@ -100,7 +93,7 @@ private:
             wllist.begin()->local_list.erase(evict_node);
             if (wllist.begin()->local_list.empty())
             {
-                RBtree.erase (wllist.begin()->weight);
+                map.erase (wllist.begin()->weight);
                 wllist.pop_front ();
             }
             size--;
@@ -125,21 +118,21 @@ private:
         old_wlnode->local_list.erase(need_llnode);
         if (old_wlnode->local_list.empty())
         {
-            RBtree.erase (old_wlnode->weight);
+            map.erase (old_wlnode->weight);
             wllist.erase(old_wlnode);
         }
     }
 
     wlnode_it find_need_wlnode (const std::size_t weight)
     {
-        auto is_need_wlnode = RBtree.find(weight);
-        if (is_need_wlnode == RBtree.end())
+        auto is_need_wlnode = map.find(weight);
+        if (is_need_wlnode == map.end())
         {
-            //  create new wlnode with nececcery weight and add new element into rbtree
+            //  create new wlnode with nececcery weight and add new element into map
             wlnode_it need_wlnode;
-            auto more_need_wlnode = RBtree.upper_bound(weight);
+            auto more_need_wlnode = map.upper_bound(weight);
 
-            if (more_need_wlnode == RBtree.end())
+            if (more_need_wlnode == map.end())
             {
                 wllist.push_back({weight, {}});
                 need_wlnode = std::prev(wllist.end());
@@ -151,7 +144,7 @@ private:
                 need_wlnode->weight = weight;
             }
 
-            RBtree.insert({weight, need_wlnode});
+            map.insert({weight, need_wlnode});
 
             return need_wlnode;
         }
