@@ -82,7 +82,7 @@ private:
 
     bool cache_find (const key_t key)
     {
-        auto list_i = hashmap.find(key)->second;
+        auto& list_i = hashmap.find(key)->second;
         auto fp_i = list_i.front();
         return (map.find(fp_i) == map.end()) ? false : true;
     }
