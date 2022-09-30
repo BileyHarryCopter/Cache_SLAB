@@ -48,7 +48,7 @@ public:
         if (nodelist.empty())
             return;
         std::cout << "AGE: " << age << "\n\t";
-        for (auto node_i = nodelist.begin(); node_i != nodelist.end(); node_i = std::next(node_i))
+        for (auto node_i = nodelist.begin(); node_i != nodelist.end(); node_i = ++node_i)
             std::cout << "|KEY: " << node_i->key << "; WEIGHT: " << node_i->weight << "| -> ";
         std::cout << "NULL\n\n\n";
     }
@@ -56,7 +56,7 @@ private:
     node_it find_bykey (const key_t key)
     {   
         for (auto need_node = nodelist.begin(), end_node = nodelist.end(); 
-                  need_node != end_node; need_node = std::next(need_node))
+                  need_node != end_node; need_node = ++need_node)
         {
             if (need_node->key == key)
                 return need_node;
@@ -71,7 +71,7 @@ private:
         {
             if (std::next(evict_node) == nodelist.end())
                 return evict_node;
-            evict_node = std::next(evict_node);
+            ++evict_node;
         }
         return std::prev(evict_node);
     }
@@ -95,7 +95,7 @@ private:
         {
             if (std::next(prepush) == nodelist.end())
                 return nodelist.end();
-            prepush = std::next(prepush);
+            ++prepush;
         }
         if (prepush->weight >= weight)
             return prepush;

@@ -68,12 +68,12 @@ public:
         std::cout << "Next key: " << key << '\n';
         std::cout << "Age of cache: " << age << '\n';
 
-        for (auto wlnode_i = wllist.begin(); wlnode_i != wllist.end(); wlnode_i = std::next(wlnode_i))
+        for (auto wlnode_i = wllist.begin(); wlnode_i != wllist.end(); wlnode_i = ++wlnode_i)
         {
             std::cout << "WEIGHT: " << wlnode_i->weight << '\n';
             std::cout << '\t';
 
-            for (auto llnode_i = wlnode_i->local_list.begin(); llnode_i != wlnode_i->local_list.end(); llnode_i = std::next(llnode_i))
+            for (auto llnode_i = wlnode_i->local_list.begin(); llnode_i != wlnode_i->local_list.end(); llnode_i = ++llnode_i)
                 std::cout << llnode_i->key << " -> ";
             std::cout << "NULL\n";
         }
@@ -143,9 +143,8 @@ private:
                 need_wlnode = wllist.emplace (more_need_wlnode->second);
                 need_wlnode->weight = weight;
             }
-            map.insert({weight, need_wlnode});
 
-            return need_wlnode;
+            return map.emplace(weight, need_wlnode).first->second;
         }
         return is_need_wlnode->second;
     }

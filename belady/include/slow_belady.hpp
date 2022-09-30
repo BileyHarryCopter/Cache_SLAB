@@ -76,7 +76,7 @@ private:
 
     list_it find_next_node (const int fp)
     {
-        for (auto node_i = cache_list.begin(); node_i != cache_list.end(); node_i = std::next(node_i))
+        for (auto node_i = cache_list.begin(); node_i != cache_list.end(); node_i = ++node_i)
         {
             if (node_i->fppos > fp)
                 return node_i;
@@ -86,7 +86,7 @@ private:
 
     list_it find_by_key (const key_t key)
     {
-        for (auto node_i = cache_list.begin(); node_i != cache_list.end(); node_i = std::next(node_i))
+        for (auto node_i = cache_list.begin(); node_i != cache_list.end(); node_i = ++node_i)
         {
             if (node_i->key == key)
                 return node_i;

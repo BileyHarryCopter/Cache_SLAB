@@ -14,13 +14,13 @@ template<typename page_t, typename key_t = int> class belady_t
     std::size_t capacity;
     std::size_t size = 0;
     //  structure of node in the red-black tree
-    struct rbnode_t
+    struct node_t
     {
         key_t key;
         page_t page;
     };
     std::unordered_map<key_t, std::list<std::size_t>> hashmap;
-    std::map<std::size_t, rbnode_t> map;
+    std::map<std::size_t, node_t> map;
 
 public:
     belady_t (std::size_t capacity_, std::vector<key_t> & input_reqs) : capacity {capacity_} 
@@ -55,7 +55,7 @@ public:
         std::cout << "KEY: " << ireq << " POS: " << position << '\n';
         auto list_i = hashmap.find(ireq)->second;
         std::cout << "HSHLIST OF KEY:\n\t";
-        for (auto pos_i = list_i.begin(); pos_i != list_i.end(); pos_i = std::next(pos_i))
+        for (auto pos_i = list_i.begin(); pos_i != list_i.end(); pos_i = ++pos_i)
         {
             std::cout << *pos_i << " -> ";
         }
@@ -100,7 +100,7 @@ private:
         auto& fp_i = fplist_i.front();
         if (map.empty())
         {
-            map.insert({fp_i, {key, slow_get_page(key)}});
+            map.emplace(fp_i, node_t {key, slow_get_page(key)});
             size++;
             return;
         }
@@ -118,7 +118,7 @@ private:
             size--;
         }
 
-        map.insert({fp_i, {key, slow_get_page(key)}});
+        map.emplace (fp_i, node_t {key, slow_get_page(key)});
         size++;
     }
 
@@ -140,7 +140,7 @@ private:
 
         //  else the element need be replaced in the cache
         auto nextfp_i = fplist_i.front();
-        map.insert({nextfp_i, node_it->second});
+        map.emplace(nextfp_i, node_it->second);
         map.erase(node_it);
     }
 
